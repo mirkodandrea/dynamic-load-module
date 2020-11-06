@@ -4,7 +4,7 @@ import {
   Injectable
 } from "@angular/core";
 import { DynamicComponent } from 'ng-dynamic-component';
-
+import { ModulesRegistry } from './dynamic-modules-registry';
 
 @Injectable({
   providedIn: "root"
@@ -12,9 +12,13 @@ import { DynamicComponent } from 'ng-dynamic-component';
 export class ComponentRegistry {
   constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
-  public get<T>(name: string, module = null) {
+  public async get<T>(name: string) {
+    let moduleName = null;
+    if(name.includes('#')){
+      [moduleName, name] = name.split('#');
+    }
     let factoryClasses;
-    if (module == null) {
+    if (moduleName == null) {
       //@ts-ignore
       factoryClasses = Array.from(this.componentFactoryResolver.ngModule._r3Injector.injectorDefTypes)
         //@ts-ignore
@@ -22,7 +26,7 @@ export class ComponentRegistry {
         //@ts-ignore
         .flat();
     } else {
-      const moduleName = Object.keys(module).filter(k => k.endsWith('Module'))[0]
+      const module = await ModulesRegistry[moduleName]();
       factoryClasses = Array.from(module[moduleName].ɵmod.declarations)
         //@ts-ignore
       .flat();
@@ -41,8 +45,9 @@ export class ComponentRegistry {
 @Component({
   selector: "app-root",
   template: `
-  <button (click)="load('LazyComponent')">LazyComponent</button>
-  <button (click)="load('OtherLazyComponent')">OtherLazyComponent</button>
+  <button (click)="load('LazyFeatureModule#LazyComponent')">LazyComponent</button>
+  <button (click)="load('LazyFeatureModule#OtherLazyComponent')">OtherLazyComponent</button>
+  <button (click)="load('OtherLazyFeatureModule#OtherLazyComponent')">OtherLazyComponent</button>
   <ndc-dynamic
   [ndcDynamicComponent]="component">
   </ndc-dynamic>
@@ -57,10 +62,8 @@ export class AppComponent {
   ) { }
 
   async load(componentName: string) {
-    const module = await import("./lazy-feature/lazy-feature.module");
-    const component = this._registry.get(
-      componentName,
-      module
+    const component = await this._registry.get(
+      componentName
     );
     console.log('component', component);
     this.component = component;    

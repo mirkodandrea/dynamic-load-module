@@ -1,11 +1,8 @@
 import {
-  Component,
-  ComponentFactoryResolver,
-  Injectable
+  Component
 } from "@angular/core";
 import { DynamicComponent } from 'ng-dynamic-component';
 import { ComponentRegistry } from './component-registry.service';
-import { ModulesRegistry } from './dynamic-modules-registry';
 
 
 @Component({

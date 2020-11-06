@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
-import { DynamicModule } from "ng-dynamic-component";
-
+import { DynamicModule } from 'ng-dynamic-component';
+import { ComponentRegistry } from './component-registry.service';
 
 
 @NgModule({
@@ -13,7 +13,7 @@ import { DynamicModule } from "ng-dynamic-component";
     BrowserModule,
     DynamicModule
   ],
-  providers: [],
+  providers: [ComponentRegistry],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
